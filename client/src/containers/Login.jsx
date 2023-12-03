@@ -35,7 +35,7 @@ const Login = () => {
                 }
               />
               <Button variant="primary" type="submit">
-                {isLoginLoading ? "Getting you in..." : Login}
+                {isLoginLoading ? "Getting you in..." : "Login"}
               </Button>
 
               {loginError?.error && (
