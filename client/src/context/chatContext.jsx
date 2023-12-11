@@ -15,7 +15,7 @@ export const ChatContextProvider = ({ children, user }) => {
         setuserChatsError(null);
 
         const response = await getRequest(`${baseUrl}/chats/${user?._id}`);
-        console.log("response");
+
         setIsUserChatsLoading(false);
 
         if (response?.error) {
@@ -27,7 +27,7 @@ export const ChatContextProvider = ({ children, user }) => {
     };
 
     getUserChats();
-  }, [user]);
+  }, [user?._id]);
 
   return (
     <ChatContext.Provider
