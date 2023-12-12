@@ -8,6 +8,10 @@ export const ChatContextProvider = ({ children, user }) => {
   const [isUserChatsLoading, setIsUserChatsLoading] = useState(false);
   const [userChatsError, setuserChatsError] = useState(null);
   const [potentialChats, setPotentialChats] = useState([]);
+  const [currentChat, setCurrentChat] = useState(null);
+  const [messages, setMessages] = useState(null);
+  const [isMessagesLoading, setIsMessagesLoading] = useState(false);
+  const [MessagesError, setMessagesError] = useState(null);
 
   //get users whom we can start a chat with
   useEffect(() => {
@@ -27,7 +31,7 @@ export const ChatContextProvider = ({ children, user }) => {
         //if chat is created with the loggedIn user or not
         if (userChats) {
           isChatCreated = userChats?.some((chat) => {
-            return chat.members[0] === u._id || chat.members[0] === u._id;
+            return chat.members[0] === u._id || chat.members[1] === u._id;
           });
         }
 
@@ -60,7 +64,7 @@ export const ChatContextProvider = ({ children, user }) => {
     };
 
     getUserChats();
-  }, [user?._id]);
+  }, [user]);
 
   //function to create chat
   const createChat = useCallback(async (firstId, secondId) => {
@@ -79,6 +83,33 @@ export const ChatContextProvider = ({ children, user }) => {
     setUserChats((prev) => [...prev, response]);
   }, []);
 
+  //update current chat
+  const updateCurrentChat = useCallback((chat) => {
+    setCurrentChat(chat);
+  }, []);
+
+  //get chat messages
+  useEffect(() => {
+    const getMessages = async () => {
+      setIsMessagesLoading(true);
+      setMessagesError(null);
+
+      const response = await getRequest(
+        `${baseUrl}/messages/${currentChat?._id}`
+      );
+
+      setIsMessagesLoading(false);
+
+      if (response?.error) {
+        return setMessagesError(response);
+      }
+
+      setMessages(response);
+    };
+
+    getMessages();
+  }, [currentChat]);
+
   return (
     <ChatContext.Provider
       value={{
@@ -87,6 +118,11 @@ export const ChatContextProvider = ({ children, user }) => {
         userChatsError,
         potentialChats,
         createChat,
+        currentChat,
+        updateCurrentChat,
+        messages,
+        isMessagesLoading,
+        MessagesError,
       }}
     >
       {children}

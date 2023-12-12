@@ -2,27 +2,45 @@ import { useState, useCallback, useEffect } from "react";
 import { baseUrl, getRequest } from "../utils/services";
 
 const useFetchRecipientUser = (chat, user) => {
-  const [userData, setUser] = useState(null);
-  const recipientId = chat?.members.find((id) => {
+  const [recipientUser, setRecipientUser] = useState(null);
+  const [error, setError] = useState(null);
+
+  const recipientId = chat?.members?.find((id) => {
     return id !== user?._id;
   });
 
-  const fetchUser = useCallback(async () => {
-    try {
+  useEffect(() => {
+    const getUser = async () => {
+      if (!recipientId) return null;
+
       const response = await getRequest(`${baseUrl}/users/find/${recipientId}`);
-      if (response) {
-        setUser(response);
+
+      if (response.error) {
+        return setError(error);
       }
-    } catch (error) {
-      console.error("Error fetching user:", error);
-    }
+
+      setRecipientUser(response);
+    };
+    getUser();
   }, [recipientId]);
 
-  useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
+  // const fetchUser = useCallback(async () => {
+  //   try {
+  //     console.log("userData");
+  //     const response = await getRequest(`${baseUrl}/users/find/${recipientId}`);
+  //     if (response) {
+  //       setRecipientUser(response);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching user:", error);
+  //   }
+  // }, [recipientId]);
 
-  return userData;
+  // useEffect(() => {
+  //   console.log("first");
+  //   fetchUser();
+  // }, [fetchUser]);
+  return { recipientUser };
 };
 
 export default useFetchRecipientUser;

@@ -3,7 +3,7 @@ import useFetchRecipientUser from "../../hooks/useFetchRecipient";
 import avatar from "../../assets/avatar.svg";
 
 const UserChat = ({ chat, user }) => {
-  const userState = useFetchRecipientUser(chat, user);
+  const { recipientUser } = useFetchRecipientUser(chat, user);
 
   return (
     <>
@@ -18,8 +18,8 @@ const UserChat = ({ chat, user }) => {
             <img src={avatar} height="35px" alt="avatar" />
           </div>
           <div className="text-content">
-            <div className="name">{userState?.name}</div>
-            <div className="text">Text Message</div>
+            <div className="name">{recipientUser?.name}</div>
+            <div className="text">Text Messages</div>
           </div>
         </div>
         <div className="d-flex flex-column align-items-end">

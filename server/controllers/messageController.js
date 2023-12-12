@@ -1,8 +1,8 @@
 const messageModel = require("../models/messageModel");
 
 exports.createMessage = async (req, res) => {
-  const { userId, chatId, text } = req.body;
-  const message = new messageModel({ userId, chatId, text });
+  const { userId, chatId, senderId, text } = req.body;
+  const message = new messageModel({ userId, chatId, senderId, text });
   try {
     const response = await message.save();
     res.status(200).json(response);
