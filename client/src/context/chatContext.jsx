@@ -12,6 +12,8 @@ export const ChatContextProvider = ({ children, user }) => {
   const [messages, setMessages] = useState(null);
   const [isMessagesLoading, setIsMessagesLoading] = useState(false);
   const [MessagesError, setMessagesError] = useState(null);
+  const [sendTextMessageError, setSendTextMessageError] = useState(null);
+  const [newMessage, setnewMessage] = useState(null);
 
   //get users whom we can start a chat with
   useEffect(() => {
@@ -110,6 +112,33 @@ export const ChatContextProvider = ({ children, user }) => {
     getMessages();
   }, [currentChat]);
 
+  //send text message
+  const sendTextMessage = useCallback(
+    async (textMessage, sender, currentChatId, setTextMessage) => {
+      if (!textMessage) return console.log("Type something...");
+
+      const response = await postRequest(
+        `${baseUrl}/messages`,
+        JSON.stringify({
+          chatId: currentChatId,
+          senderId: sender._id,
+          text: textMessage,
+        })
+      );
+
+      if (response?.error) {
+        return setSendTextMessageError(response);
+      }
+
+      setnewMessage(response);
+      //update messages array
+      setMessages((prev) => [...prev, response]);
+
+      //after sending, set input to empty
+      setTextMessage("");
+    }
+  );
+
   return (
     <ChatContext.Provider
       value={{
@@ -123,6 +152,7 @@ export const ChatContextProvider = ({ children, user }) => {
         messages,
         isMessagesLoading,
         MessagesError,
+        sendTextMessage,
       }}
     >
       {children}
