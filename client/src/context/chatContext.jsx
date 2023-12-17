@@ -18,8 +18,6 @@ export const ChatContextProvider = ({ children, user }) => {
   const [socket, setSocket] = useState(null);
   const [onlineUsers, setOnlineUsers] = useState([]);
 
-  console.log("onlineUsers", onlineUsers);
-
   //Initialize socket
   useEffect(() => {
     const newSocket = io("http://localhost:3000");
@@ -39,6 +37,10 @@ export const ChatContextProvider = ({ children, user }) => {
     socket.on("getOnlineUsers", (res) => {
       setOnlineUsers(res);
     });
+
+    return () => {
+      socket.off("getOnlineUsers");
+    };
   }, [socket]);
 
   //get users whom we can start a chat with
@@ -93,6 +95,31 @@ export const ChatContextProvider = ({ children, user }) => {
 
     getUserChats();
   }, [user]);
+
+  //Send message => trigger event
+  useEffect(() => {
+    if (socket === null) return;
+
+    const recipientId = currentChat?.members?.find((id) => id !== user._id);
+
+    socket.emit("sendMessage", { ...newMessage, recipientId });
+  }, [newMessage]);
+
+  //Receive message
+  useEffect(() => {
+    if (socket === null) return;
+
+    //Listen to getMessage event
+    socket.on("getMessage", (res) => {
+      if (currentChat?._id !== res.chatId) return;
+
+      setMessages((prev) => [...prev, res]);
+    });
+
+    return () => {
+      socket.off("getMessage");
+    };
+  }, [socket, currentChat]);
 
   //function to create chat
   const createChat = useCallback(async (firstId, secondId) => {
@@ -179,6 +206,7 @@ export const ChatContextProvider = ({ children, user }) => {
         isMessagesLoading,
         MessagesError,
         sendTextMessage,
+        onlineUsers,
       }}
     >
       {children}
